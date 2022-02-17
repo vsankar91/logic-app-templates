@@ -1,0 +1,53 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "servicebus_connection_name": {
+            "type": "string",
+            "defaultValue": "servicebus-connection"
+        },
+        "servicebus_connectionstring": {
+            "type": "string"
+        }
+    },
+    "variables": {
+        "location": "[resourceGroup().location]",
+        "subscriptionId": "[subscription().subscriptionId]",
+        "rgName": "[resourceGroup().name]",
+        "serviceBusConnectionApi": "[concat('/subscriptions/', variables('subscriptionId'), '/providers/Microsoft.Web/locations/', variables('location'), '/managedApis/servicebus')]",
+        "servicebusConnectionExternalId": "[concat('/subscriptions/', variables('subscriptionId'), '/resourceGroups/', variables('rgName'), '/providers/Microsoft.Web/connections/', parameters('servicebus_connection_name'))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[parameters('servicebus_connection_name')]",
+            "location": "[variables('location')]",
+            "kind": "V1",
+            "properties": {
+                "displayName": "[parameters('servicebus_connection_name')]",
+                "customParameterValues": {},
+                "api": {
+                    "id": "[variables('serviceBusConnectionApi')]"
+                },
+                "parameterValues": {
+                    "connectionString": "[parameters('servicebus_connectionstring')]"
+                }
+            }
+        }
+    ],
+    "outputs": {
+        "servicebus_connection_name": {
+            "type": "string",
+            "value": "[parameters('servicebus_connection_name')]"
+        },
+        "servicebus_connection_api": {
+            "type": "string",
+            "value": "[variables('serviceBusConnectionApi')]"
+        },
+        "servicebus_connection_external_id": {
+            "type": "string",
+            "value": "[variables('servicebusConnectionExternalId')]"
+        }
+    }
+}
